@@ -29,17 +29,18 @@
     <maven.compiler.release>${java.version}</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <stack.version>4.4.1</stack.version>
   </properties>
 
-  <name>My OSS Project</name>
-  <description>My Latest OSS Project</description>
-  <inceptionYear>2021</inceptionYear>
-  <url>tbd.</url>
+  <name>Reactiverse Pinot Client</name>
+  <description>This client exposes the Pinot Java Client for Eclipse Vert.x applications.</description>
+  <inceptionYear>2023</inceptionYear>
+  <url>https://github.com/lucifer4j/pinot-client</url>
 
   <licenses>
     <license>
       <name>Apache-2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
@@ -47,9 +48,16 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.junit</groupId>
-        <artifactId>junit-bom</artifactId>
-        <version>5.8.1</version>
+        <groupId>org.testcontainers</groupId>
+        <artifactId>testcontainers-bom</artifactId>
+        <version>1.17.6</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.vertx</groupId>
+        <artifactId>vertx-dependencies</artifactId>
+        <version>${stack.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -58,7 +66,30 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.junit.jupiter</groupId>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-codegen</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-web-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-junit5</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.pinot</groupId>
+      <artifactId>pinot-java-client</artifactId>
+      <version>0.12.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
       <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
@@ -68,7 +99,6 @@
       <version>3.21.0</version>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
 
   <build>

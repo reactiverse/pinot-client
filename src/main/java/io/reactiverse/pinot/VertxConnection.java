@@ -15,9 +15,12 @@
  */
 package io.reactiverse.pinot;
 
-public class App {
+import org.apache.pinot.client.ResultSetGroup;
 
-    public String hello(String name) {
-        return "Hello, " + name;
-    }
+import io.vertx.core.Handler;
+
+public interface VertxConnection {
+    void execute(String query, Handler<ResultSetGroup> handler);
+
+    void close();
 }

@@ -1,6 +1,7 @@
-# My OSS Project
+# pinot-client
 
-An open-source project bootstrapped using the [ModiTect OSS Quickstart](https://github.com/moditect/oss-quickstart) archetype.
+This client exposes the Pinot Java Client for Eclipse Vert.x applications.
+The project bootstrapped using the [ModiTect OSS Quickstart](https://github.com/moditect/oss-quickstart) archetype.
 
 
 Run the following command to build this project:
