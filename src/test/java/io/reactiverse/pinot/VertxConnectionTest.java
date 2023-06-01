@@ -56,21 +56,21 @@ public class VertxConnectionTest {
 
     String query = "select playerName, sum(homeRuns) AS totalHomeRuns from baseballStats where homeRuns > 0 group by playerID, playerName ORDER BY totalHomeRuns DESC limit 2";
 
-    connection.execute(query, resultSetGroup -> {
+    var future = connection.execute(query);
+    future.onSuccess(resultSetGroup -> {
       ResultSet results = resultSetGroup.getResultSet(0);
       testContext.verify(() -> {
-          assertEquals(results.getColumnName(0), "playerName");
-          assertEquals(results.getColumnName(1), "totalHomeRuns");
-          assertEquals(results.getRowCount(), 2);
+        assertEquals(results.getColumnName(0), "playerName");
+        assertEquals(results.getColumnName(1), "totalHomeRuns");
+        assertEquals(results.getRowCount(), 2);
 
-          assertEquals(results.getString(0, 0), "Barry Lamar");
-          assertEquals(results.getDouble(0, 1), 762.0);
-          assertEquals(results.getString(1, 0), "Henry Louis");
-          assertEquals(results.getDouble(1, 1), 755.0);
-          testContext.completeNow();
+        assertEquals(results.getString(0, 0), "Barry Lamar");
+        assertEquals(results.getDouble(0, 1), 762.0);
+        assertEquals(results.getString(1, 0), "Henry Louis");
+        assertEquals(results.getDouble(1, 1), 755.0);
+        testContext.completeNow();
       });
     });
-
   }
 
 }

@@ -15,12 +15,12 @@
  */
 package io.reactiverse.pinot;
 
+import io.vertx.core.Future;
 import org.apache.pinot.client.ResultSetGroup;
 
-import io.vertx.core.Handler;
 
 public interface VertxConnection {
-    void execute(String query, Handler<ResultSetGroup> handler);
+    Future<ResultSetGroup> execute(String query);
 
     void close();
 }

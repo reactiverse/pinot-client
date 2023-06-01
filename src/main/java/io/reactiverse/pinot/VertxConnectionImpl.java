@@ -15,12 +15,13 @@
  */
 package io.reactiverse.pinot;
 
+import io.vertx.core.Future;
 import org.apache.pinot.client.PinotClientException;
 import org.apache.pinot.client.ResultSetGroup;
 
-import io.vertx.core.Context;
-import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+
+import java.util.concurrent.ExecutionException;
 
 public class VertxConnectionImpl implements VertxConnection {
     private final org.apache.pinot.client.Connection pinotConnection;
@@ -32,12 +33,17 @@ public class VertxConnectionImpl implements VertxConnection {
     }
 
     @Override
-    public void execute(String query, Handler<ResultSetGroup> handler) {
-        Context context = vertx.getOrCreateContext();
-        context.runOnContext(action -> {
-            ResultSetGroup resultSetGroup = pinotConnection.execute(query);
-            handler.handle(resultSetGroup);
-        });
+    public Future<ResultSetGroup> execute(String query) {
+        java.util.concurrent.Future<ResultSetGroup> originalFuture = pinotConnection.executeAsync(query);
+        return vertx.executeBlocking(promise -> {
+            try {
+                ResultSetGroup resultSetGroup = originalFuture.get();
+                promise.complete(resultSetGroup);
+            }
+            catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }, false);
     }
 
     public void close() throws PinotClientException {
