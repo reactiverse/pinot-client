@@ -15,12 +15,20 @@
  */
 package io.reactiverse.pinot;
 
+import io.vertx.codegen.annotations.Nullable;
 import io.vertx.core.Future;
+import io.vertx.core.Handler;
 import org.apache.pinot.client.ResultSetGroup;
 
 
 public interface VertxConnection {
     Future<ResultSetGroup> execute(String query);
+
+    Future<ResultSetGroup> execute(@Nullable String tableName, String query);
+
+    void execute(String query, Handler<ResultSetGroup> handler);
+
+    void execute(@Nullable String tableName, String query, Handler<ResultSetGroup> handler);
 
     void close();
 }

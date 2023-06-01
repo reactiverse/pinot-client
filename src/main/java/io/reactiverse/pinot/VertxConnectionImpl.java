@@ -15,7 +15,9 @@
  */
 package io.reactiverse.pinot;
 
+import io.vertx.codegen.annotations.Nullable;
 import io.vertx.core.Future;
+import io.vertx.core.Handler;
 import org.apache.pinot.client.PinotClientException;
 import org.apache.pinot.client.ResultSetGroup;
 
@@ -32,18 +34,40 @@ public class VertxConnectionImpl implements VertxConnection {
         this.pinotConnection = pinotConnection;
     }
 
-    @Override
-    public Future<ResultSetGroup> execute(String query) {
-        java.util.concurrent.Future<ResultSetGroup> originalFuture = pinotConnection.executeAsync(query);
+    private <T> Future<T> transformFuture(java.util.concurrent.Future<T> originalFuture) {
         return vertx.executeBlocking(promise -> {
             try {
-                ResultSetGroup resultSetGroup = originalFuture.get();
-                promise.complete(resultSetGroup);
+                T result = originalFuture.get();
+                promise.complete(result);
             }
             catch (InterruptedException | ExecutionException e) {
                 throw new RuntimeException(e);
             }
         }, false);
+    }
+
+    @Override
+    public Future<ResultSetGroup> execute(String query) {
+        var originalFuture = pinotConnection.executeAsync(query);
+        return transformFuture(originalFuture);
+    }
+
+    @Override
+    public Future<ResultSetGroup> execute(@Nullable String tableName, String query) {
+        var originalFuture = pinotConnection.executeAsync(tableName, query);
+        return transformFuture(originalFuture);
+    }
+
+    @Override
+    public void execute(String query, Handler<ResultSetGroup> handler) {
+        // TODO: Add a generic error handler?
+        execute(query).onSuccess(handler);
+    }
+
+    @Override
+    public void execute(@Nullable String tableName, String query, Handler<ResultSetGroup> handler) {
+        // TODO: Add a generic error handler?
+        execute(tableName, query).onSuccess(handler);
     }
 
     public void close() throws PinotClientException {
