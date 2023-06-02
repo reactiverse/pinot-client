@@ -45,12 +45,15 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: 'Start Apache Pinot'
+      - name: 'Start Pinot for tests'
+        run: docker run -d -p 8000:8000 -p 9000:9000 apachepinot/pinot:0.12.0 QuickStart -type batch
+
+      - name: 'Wait for Pinot to become ready'
         run: |
           until [[ "$(curl -s -o /dev/null -w "%{http_code}" -H 'Content-Type: application/json' -X POST -d '{"sql": "select 1 from baseballStats limit 1"}' http://localhost:8000/query/sql)" = "200" ]]
           do
             echo "waiting for apache pinot to come up"
-            sleep 1
+            sleep 5
           done
 
       - name: 'Build and test project'
