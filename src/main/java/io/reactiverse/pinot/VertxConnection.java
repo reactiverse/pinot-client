@@ -22,6 +22,8 @@ import org.apache.pinot.client.ResultSetGroup;
 
 
 public interface VertxConnection {
+    VertxPreparedStatement prepareStatement(String query);
+
     Future<ResultSetGroup> execute(String query);
 
     Future<ResultSetGroup> execute(@Nullable String tableName, String query);

@@ -18,12 +18,11 @@ package io.reactiverse.pinot;
 import io.vertx.codegen.annotations.Nullable;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 import org.apache.pinot.client.PinotClientException;
 import org.apache.pinot.client.ResultSetGroup;
 
-import io.vertx.core.Vertx;
-
-import java.util.concurrent.ExecutionException;
+import static io.reactiverse.pinot.Utils.transformFuture;
 
 public class VertxConnectionImpl implements VertxConnection {
     private final org.apache.pinot.client.Connection pinotConnection;
@@ -34,28 +33,22 @@ public class VertxConnectionImpl implements VertxConnection {
         this.pinotConnection = pinotConnection;
     }
 
-    private <T> Future<T> transformFuture(java.util.concurrent.Future<T> originalFuture) {
-        return vertx.executeBlocking(promise -> {
-            try {
-                T result = originalFuture.get();
-                promise.complete(result);
-            }
-            catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
-            }
-        }, false);
+    @Override
+    public VertxPreparedStatement prepareStatement(String query) {
+        var originalPreparedStatement = pinotConnection.prepareStatement(query);
+        return new VertxPreparedStatement(vertx, originalPreparedStatement);
     }
 
     @Override
     public Future<ResultSetGroup> execute(String query) {
         var originalFuture = pinotConnection.executeAsync(query);
-        return transformFuture(originalFuture);
+        return transformFuture(vertx, originalFuture);
     }
 
     @Override
     public Future<ResultSetGroup> execute(@Nullable String tableName, String query) {
         var originalFuture = pinotConnection.executeAsync(tableName, query);
-        return transformFuture(originalFuture);
+        return transformFuture(vertx, originalFuture);
     }
 
     @Override
