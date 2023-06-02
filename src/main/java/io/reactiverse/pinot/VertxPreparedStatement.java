@@ -18,6 +18,7 @@ package io.reactiverse.pinot;
 import org.apache.pinot.client.PreparedStatement;
 import org.apache.pinot.client.ResultSetGroup;
 
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -39,8 +40,8 @@ public class VertxPreparedStatement {
         return transformFuture(vertx, originalFuture);
     }
 
-    public void execute(Handler<ResultSetGroup> handler) {
-        execute().onSuccess(handler);
+    public void execute(Handler<AsyncResult<ResultSetGroup>> handler) {
+        execute().onComplete(handler);
     }
 
     public VertxPreparedStatement setString(int parameterIndex, String value) {

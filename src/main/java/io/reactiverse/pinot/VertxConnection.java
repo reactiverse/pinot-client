@@ -18,6 +18,7 @@ package io.reactiverse.pinot;
 import org.apache.pinot.client.ResultSetGroup;
 
 import io.vertx.codegen.annotations.Nullable;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 
@@ -28,9 +29,9 @@ public interface VertxConnection {
 
     Future<ResultSetGroup> execute(@Nullable String tableName, String query);
 
-    void execute(String query, Handler<ResultSetGroup> handler);
+    void execute(String query, Handler<AsyncResult<ResultSetGroup>> handler);
 
-    void execute(@Nullable String tableName, String query, Handler<ResultSetGroup> handler);
+    void execute(@Nullable String tableName, String query, Handler<AsyncResult<ResultSetGroup>> handler);
 
     void close();
 }

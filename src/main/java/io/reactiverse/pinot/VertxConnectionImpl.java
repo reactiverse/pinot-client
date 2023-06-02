@@ -19,6 +19,7 @@ import org.apache.pinot.client.PinotClientException;
 import org.apache.pinot.client.ResultSetGroup;
 
 import io.vertx.codegen.annotations.Nullable;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -53,15 +54,13 @@ public class VertxConnectionImpl implements VertxConnection {
     }
 
     @Override
-    public void execute(String query, Handler<ResultSetGroup> handler) {
-        // TODO: Add a generic error handler?
-        execute(query).onSuccess(handler);
+    public void execute(String query, Handler<AsyncResult<ResultSetGroup>> handler) {
+        execute(query).onComplete(handler);
     }
 
     @Override
-    public void execute(@Nullable String tableName, String query, Handler<ResultSetGroup> handler) {
-        // TODO: Add a generic error handler?
-        execute(tableName, query).onSuccess(handler);
+    public void execute(@Nullable String tableName, String query, Handler<AsyncResult<ResultSetGroup>> handler) {
+        execute(tableName, query).onComplete(handler);
     }
 
     public void close() throws PinotClientException {
