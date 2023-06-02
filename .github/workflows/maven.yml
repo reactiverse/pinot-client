@@ -36,7 +36,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: 17
-          distribution: 'zulu'
+          distribution: 'temurin'
 
       - name: 'Cache Maven packages'
         uses: actions/cache@v2
@@ -45,5 +45,13 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: 'Build example service'
+      - name: 'Start Apache Pinot'
+        run: |
+          until [[ "$(curl -s -o /dev/null -w "%{http_code}" -H 'Content-Type: application/json' -X POST -d '{"sql": "select 1 from baseballStats limit 1"}' http://localhost:8000/query/sql)" = "200" ]]
+          do
+            echo "waiting for apache pinot to come up"
+            sleep 1
+          done
+
+      - name: 'Build and test project'
         run: mvn -B clean verify
