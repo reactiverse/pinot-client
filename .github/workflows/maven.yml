@@ -50,7 +50,12 @@ jobs:
 
       - name: 'Wait for Pinot to become ready'
         run: |
-          until [[ "$(curl -s -o /dev/null -w "%{http_code}" -H 'Content-Type: application/json' -X POST -d '{"sql": "select 1 from baseballStats limit 1"}' http://localhost:8000/query/sql)" = "200" ]]
+          until [[ "$(curl -s -o /dev/null -w "%{http_code}" -H 'Content-Type: application/json' -X POST -d '{"sql": "select 1"}' http://localhost:8000/query/sql)" = "200" ]]
+          do
+            echo "waiting for apache pinot to come up"
+            sleep 5
+          done
+          until [[ "$(curl -s -H 'Content-Type: application/json' -X POST -d '{"sql": "select playerName from baseballStats limit 1"}' http://localhost:8000/query/sql | jq 'if (.exceptions | length) > 0 then 1 else 0 end')" = "0" ]]
           do
             echo "waiting for apache pinot to come up"
             sleep 5
