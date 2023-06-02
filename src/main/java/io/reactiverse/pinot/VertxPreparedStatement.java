@@ -15,57 +15,56 @@
  */
 package io.reactiverse.pinot;
 
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
 import org.apache.pinot.client.PreparedStatement;
 import org.apache.pinot.client.ResultSetGroup;
 
-import static io.reactiverse.pinot.Utils.transformFuture;
+import io.vertx.core.Future;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 
+import static io.reactiverse.pinot.Utils.transformFuture;
 
 public class VertxPreparedStatement {
 
-  private final Vertx vertx;
-  private final PreparedStatement preparedStatement;
+    private final Vertx vertx;
+    private final PreparedStatement preparedStatement;
 
-  VertxPreparedStatement(Vertx vertx, PreparedStatement preparedStatement) {
-    this.vertx = vertx;
-    this.preparedStatement = preparedStatement;
-  }
+    VertxPreparedStatement(Vertx vertx, PreparedStatement preparedStatement) {
+        this.vertx = vertx;
+        this.preparedStatement = preparedStatement;
+    }
 
+    public Future<ResultSetGroup> execute() {
+        var originalFuture = preparedStatement.executeAsync();
+        return transformFuture(vertx, originalFuture);
+    }
 
-  public Future<ResultSetGroup> execute() {
-    var originalFuture = preparedStatement.executeAsync();
-    return transformFuture(vertx, originalFuture);
-  }
+    public void execute(Handler<ResultSetGroup> handler) {
+        execute().onSuccess(handler);
+    }
 
-  public void execute(Handler<ResultSetGroup> handler) {
-    execute().onSuccess(handler);
-  }
+    public VertxPreparedStatement setString(int parameterIndex, String value) {
+        preparedStatement.setString(parameterIndex, value);
+        return this;
+    }
 
-  public VertxPreparedStatement setString(int parameterIndex, String value) {
-    preparedStatement.setString(parameterIndex, value);
-    return this;
-  }
+    public VertxPreparedStatement setInt(int parameterIndex, int value) {
+        preparedStatement.setInt(parameterIndex, value);
+        return this;
+    }
 
-  public VertxPreparedStatement setInt(int parameterIndex, int value) {
-    preparedStatement.setInt(parameterIndex, value);
-    return this;
-  }
+    public VertxPreparedStatement setLong(int parameterIndex, long value) {
+        preparedStatement.setLong(parameterIndex, value);
+        return this;
+    }
 
-  public VertxPreparedStatement setLong(int parameterIndex, long value) {
-    preparedStatement.setLong(parameterIndex, value);
-    return this;
-  }
+    public VertxPreparedStatement setFloat(int parameterIndex, float value) {
+        preparedStatement.setFloat(parameterIndex, value);
+        return this;
+    }
 
-  public VertxPreparedStatement setFloat(int parameterIndex, float value) {
-    preparedStatement.setFloat(parameterIndex, value);
-    return this;
-  }
-
-  public VertxPreparedStatement setDouble(int parameterIndex, double value) {
-    preparedStatement.setDouble(parameterIndex, value);
-    return this;
-  }
+    public VertxPreparedStatement setDouble(int parameterIndex, double value) {
+        preparedStatement.setDouble(parameterIndex, value);
+        return this;
+    }
 }

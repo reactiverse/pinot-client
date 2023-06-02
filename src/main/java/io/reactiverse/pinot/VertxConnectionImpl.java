@@ -15,12 +15,13 @@
  */
 package io.reactiverse.pinot;
 
+import org.apache.pinot.client.PinotClientException;
+import org.apache.pinot.client.ResultSetGroup;
+
 import io.vertx.codegen.annotations.Nullable;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import org.apache.pinot.client.PinotClientException;
-import org.apache.pinot.client.ResultSetGroup;
 
 import static io.reactiverse.pinot.Utils.transformFuture;
 
