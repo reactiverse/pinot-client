@@ -15,8 +15,12 @@
  */
 package io.reactiverse.pinot;
 
+import java.time.Duration;
+import java.util.List;
+
 import org.apache.pinot.client.ResultSet;
 import org.apache.pinot.client.ResultSetGroup;
+import org.apache.pinot.client.VertxPinotClientTransport;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,14 +28,11 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
-import org.testcontainers.utility.DockerImageName;
-
-import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -44,12 +45,13 @@ public class VertxConnectionTest {
     // start docker container prior to tests using `docker run -p 8000:8000 -p 9000:9000 apachepinot/pinot:0.12.0 QuickStart -type batch`
     // image takes time to load tables and testcontainers does not account for that.
 
-     @Container
-     public static GenericContainer<?> pinot = new GenericContainer<>(DockerImageName.parse("apachepinot/pinot:0.12.0"))
-             .withCommand("QuickStart -type batch")
-             .withExposedPorts(8000, 9000)
-             .waitingFor(Wait.forLogMessage(".*Offline quickstart setup complete.*\\n", 1))
-             .withStartupTimeout(Duration.ofSeconds(600));
+    @Container
+    public static GenericContainer<?> pinot = new GenericContainer<>(DockerImageName.parse("apachepinot/pinot:0.12.0"))
+            .withCommand("QuickStart -type batch")
+            .withExposedPorts(8000)
+            .waitingFor(Wait.forLogMessage(".*Offline quickstart setup complete.*\\n", 1))
+            .withStartupTimeout(Duration.ofSeconds(600))
+            .withReuse(true);
 
     @AfterEach
     public void tearDown(VertxTestContext testContext) {
@@ -93,6 +95,19 @@ public class VertxConnectionTest {
                 .prepareStatement(query)
                 .setInt(0, 0)
                 .execute()
+                .onSuccess(resultSetGroup -> checkGetAssertions(testContext, resultSetGroup));
+    }
+
+    @Test
+    public void testVertxTransport(VertxTestContext testContext) {
+        String brokerUrl = "localhost:8000";
+        VertxPinotClientTransport transport = new VertxPinotClientTransport(vertx);
+        VertxConnection connection = VertxConnectionFactory.fromHostList(vertx, List.of(brokerUrl), transport);
+
+        String query = "select playerName, sum(homeRuns) AS totalHomeRuns from baseballStats where homeRuns > 0 group by playerID, playerName ORDER BY totalHomeRuns DESC limit 2";
+
+        connection
+                .execute(query)
                 .onSuccess(resultSetGroup -> checkGetAssertions(testContext, resultSetGroup));
     }
 
