@@ -100,7 +100,7 @@ public class VertxConnectionTest {
 
     @Test
     public void testVertxTransport(VertxTestContext testContext) {
-        String brokerUrl = "localhost:8000";
+        String brokerUrl = "localhost:" + pinot.getMappedPort(8000);
         VertxPinotClientTransport transport = new VertxPinotClientTransport(vertx);
         VertxConnection connection = VertxConnectionFactory.fromHostList(vertx, List.of(brokerUrl), transport);
 
