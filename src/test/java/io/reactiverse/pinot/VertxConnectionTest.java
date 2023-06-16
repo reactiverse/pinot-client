@@ -82,7 +82,8 @@ public class VertxConnectionTest {
 
         connection
                 .execute(query)
-                .onSuccess(resultSetGroup -> checkGetAssertions(testContext, resultSetGroup));
+                .onSuccess(resultSetGroup -> checkGetAssertions(testContext, resultSetGroup))
+                .onFailure(testContext::failNow);
     }
 
     @Test
@@ -95,7 +96,8 @@ public class VertxConnectionTest {
                 .prepareStatement(query)
                 .setInt(0, 0)
                 .execute()
-                .onSuccess(resultSetGroup -> checkGetAssertions(testContext, resultSetGroup));
+                .onSuccess(resultSetGroup -> checkGetAssertions(testContext, resultSetGroup))
+                .onFailure(testContext::failNow);
     }
 
     @Test
@@ -108,7 +110,8 @@ public class VertxConnectionTest {
 
         connection
                 .execute(query)
-                .onSuccess(resultSetGroup -> checkGetAssertions(testContext, resultSetGroup));
+                .onSuccess(resultSetGroup -> checkGetAssertions(testContext, resultSetGroup))
+                .onFailure(testContext::failNow);
     }
 
 }
