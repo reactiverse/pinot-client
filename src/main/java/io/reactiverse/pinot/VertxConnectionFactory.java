@@ -19,10 +19,7 @@ package io.reactiverse.pinot;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.pinot.client.Connection;
-import org.apache.pinot.client.ConnectionFactory;
-import org.apache.pinot.client.PinotClientException;
-import org.apache.pinot.client.PinotClientTransport;
+import org.apache.pinot.client.*;
 
 import io.vertx.core.Vertx;
 
@@ -96,6 +93,22 @@ public class VertxConnectionFactory {
     public static VertxConnection fromController(Vertx vertx, Properties properties, String controllerUrl) {
         try {
             Connection pinotConnection = ConnectionFactory.fromController(properties, controllerUrl);
+            return new VertxConnectionImpl(vertx, pinotConnection);
+        }
+        catch (Exception e) {
+            throw new PinotClientException(e);
+        }
+    }
+
+    /**
+     * @param properties
+     * @param controllerUrl url host:port of the controller
+     * @param transport pinot transport
+     * @return A connection that connects to brokers as per the given controller
+     */
+    public static VertxConnection fromController(Vertx vertx, Properties properties, String controllerUrl, PinotClientTransport transport) {
+        try {
+            Connection pinotConnection = ConnectionFactoryBridge.fromController(properties, controllerUrl, transport);
             return new VertxConnectionImpl(vertx, pinotConnection);
         }
         catch (Exception e) {

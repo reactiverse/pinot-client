@@ -17,11 +17,13 @@ package io.reactiverse.pinot;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.pinot.client.ResultSet;
 import org.apache.pinot.client.ResultSetGroup;
 import org.apache.pinot.client.VertxPinotClientTransport;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testcontainers.containers.GenericContainer;
@@ -42,13 +44,10 @@ public class VertxConnectionTest {
 
     private Vertx vertx = Vertx.vertx();
 
-    // start docker container prior to tests using `docker run -p 8000:8000 -p 9000:9000 apachepinot/pinot:0.12.0 QuickStart -type batch`
-    // image takes time to load tables and testcontainers does not account for that.
-
     @Container
     public static GenericContainer<?> pinot = new GenericContainer<>(DockerImageName.parse("apachepinot/pinot:0.12.0"))
             .withCommand("QuickStart -type batch")
-            .withExposedPorts(8000)
+            .withExposedPorts(2181, 8000, 9000)
             .waitingFor(Wait.forLogMessage(".*Offline quickstart setup complete.*\\n", 1))
             .withStartupTimeout(Duration.ofSeconds(600))
             .withReuse(true);
@@ -73,17 +72,20 @@ public class VertxConnectionTest {
         });
     }
 
-    @Test
-    public void testGetPlayers(VertxTestContext testContext) {
-        String brokerUrl = "localhost:" + pinot.getMappedPort(8000);
-        VertxConnection connection = VertxConnectionFactory.fromHostList(vertx, brokerUrl);
-
+    private void executeQueryTest(VertxTestContext testContext, VertxConnection connection) {
         String query = "select playerName, sum(homeRuns) AS totalHomeRuns from baseballStats where homeRuns > 0 group by playerID, playerName ORDER BY totalHomeRuns DESC limit 2";
 
         connection
                 .execute(query)
                 .onSuccess(resultSetGroup -> checkGetAssertions(testContext, resultSetGroup))
                 .onFailure(testContext::failNow);
+    }
+
+    @Test
+    public void testGetPlayers(VertxTestContext testContext) {
+        String brokerUrl = "localhost:" + pinot.getMappedPort(8000);
+        VertxConnection connection = VertxConnectionFactory.fromHostList(vertx, brokerUrl);
+        executeQueryTest(testContext, connection);
     }
 
     @Test
@@ -101,17 +103,32 @@ public class VertxConnectionTest {
     }
 
     @Test
-    public void testVertxTransport(VertxTestContext testContext) {
+    public void testVertxTransportWithBroker(VertxTestContext testContext) {
         String brokerUrl = "localhost:" + pinot.getMappedPort(8000);
         VertxPinotClientTransport transport = new VertxPinotClientTransport(vertx);
         VertxConnection connection = VertxConnectionFactory.fromHostList(vertx, List.of(brokerUrl), transport);
+        executeQueryTest(testContext, connection);
+    }
 
-        String query = "select playerName, sum(homeRuns) AS totalHomeRuns from baseballStats where homeRuns > 0 group by playerID, playerName ORDER BY totalHomeRuns DESC limit 2";
+    @Test
+    public void testVertxTransportWithController(VertxTestContext testContext) {
+        Properties properties = new Properties();
+        properties.setProperty("brokerUpdateFrequencyInMillis", "60000");
 
-        connection
-                .execute(query)
-                .onSuccess(resultSetGroup -> checkGetAssertions(testContext, resultSetGroup))
-                .onFailure(testContext::failNow);
+        String controllerUrl = "localhost:" + pinot.getMappedPort(9000);
+        VertxPinotClientTransport transport = new VertxPinotClientTransport(vertx);
+        VertxConnection connection = VertxConnectionFactory.fromController(vertx, properties, controllerUrl, transport);
+
+        executeQueryTest(testContext, connection);
+    }
+
+    @Test
+    @Disabled
+    public void testVertxTransportWithZookeeper(VertxTestContext testContext) {
+        String zookeeperUrl = "localhost:" + pinot.getMappedPort(2181) + "/QuickStartCluster";
+        VertxPinotClientTransport transport = new VertxPinotClientTransport(vertx);
+        VertxConnection connection = VertxConnectionFactory.fromZookeeper(vertx, zookeeperUrl, transport);
+        executeQueryTest(testContext, connection);
     }
 
 }
