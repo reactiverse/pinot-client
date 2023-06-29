@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package io.reactiverse.pinot;
+package io.reactiverse.pinot.client;
 
 import org.apache.pinot.client.PinotClientException;
 import org.apache.pinot.client.ResultSetGroup;
@@ -23,8 +23,6 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-
-import static io.reactiverse.pinot.Utils.transformFuture;
 
 public class VertxConnectionImpl implements VertxConnection {
     private final org.apache.pinot.client.Connection pinotConnection;
@@ -38,19 +36,19 @@ public class VertxConnectionImpl implements VertxConnection {
     @Override
     public VertxPreparedStatement prepareStatement(String query) {
         var originalPreparedStatement = pinotConnection.prepareStatement(query);
-        return new VertxPreparedStatement(vertx, originalPreparedStatement);
+        return new VertxPreparedStatementImpl(vertx, originalPreparedStatement);
     }
 
     @Override
     public Future<ResultSetGroup> execute(String query) {
         var originalFuture = pinotConnection.executeAsync(query);
-        return transformFuture(vertx, originalFuture);
+        return Utils.transformFuture(vertx, originalFuture);
     }
 
     @Override
     public Future<ResultSetGroup> execute(@Nullable String tableName, String query) {
         var originalFuture = pinotConnection.executeAsync(tableName, query);
-        return transformFuture(vertx, originalFuture);
+        return Utils.transformFuture(vertx, originalFuture);
     }
 
     @Override

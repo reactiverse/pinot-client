@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package io.reactiverse.pinot;
+package io.reactiverse.pinot.client;
 
 import org.apache.pinot.client.PreparedStatement;
 import org.apache.pinot.client.ResultSetGroup;
@@ -23,48 +23,53 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 
-import static io.reactiverse.pinot.Utils.transformFuture;
-
-public class VertxPreparedStatement {
+public class VertxPreparedStatementImpl implements VertxPreparedStatement {
 
     private final Vertx vertx;
     private final PreparedStatement preparedStatement;
 
-    VertxPreparedStatement(Vertx vertx, PreparedStatement preparedStatement) {
+    VertxPreparedStatementImpl(Vertx vertx, PreparedStatement preparedStatement) {
         this.vertx = vertx;
         this.preparedStatement = preparedStatement;
     }
 
+    @Override
     public Future<ResultSetGroup> execute() {
         var originalFuture = preparedStatement.executeAsync();
-        return transformFuture(vertx, originalFuture);
+        return Utils.transformFuture(vertx, originalFuture);
     }
 
+    @Override
     public void execute(Handler<AsyncResult<ResultSetGroup>> handler) {
         execute().onComplete(handler);
     }
 
-    public VertxPreparedStatement setString(int parameterIndex, String value) {
+    @Override
+    public VertxPreparedStatementImpl setString(int parameterIndex, String value) {
         preparedStatement.setString(parameterIndex, value);
         return this;
     }
 
-    public VertxPreparedStatement setInt(int parameterIndex, int value) {
+    @Override
+    public VertxPreparedStatementImpl setInt(int parameterIndex, int value) {
         preparedStatement.setInt(parameterIndex, value);
         return this;
     }
 
-    public VertxPreparedStatement setLong(int parameterIndex, long value) {
+    @Override
+    public VertxPreparedStatementImpl setLong(int parameterIndex, long value) {
         preparedStatement.setLong(parameterIndex, value);
         return this;
     }
 
-    public VertxPreparedStatement setFloat(int parameterIndex, float value) {
+    @Override
+    public VertxPreparedStatementImpl setFloat(int parameterIndex, float value) {
         preparedStatement.setFloat(parameterIndex, value);
         return this;
     }
 
-    public VertxPreparedStatement setDouble(int parameterIndex, double value) {
+    @Override
+    public VertxPreparedStatementImpl setDouble(int parameterIndex, double value) {
         preparedStatement.setDouble(parameterIndex, value);
         return this;
     }

@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package io.reactiverse.pinot;
+package io.reactiverse.pinot.client.rxjava3;
 
 import java.time.Duration;
 import java.util.List;
@@ -32,11 +32,11 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
+import io.vertx.rxjava3.core.Vertx;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(VertxExtension.class)
 @Testcontainers
@@ -54,7 +54,7 @@ public class VertxConnectionTest {
 
     @AfterEach
     public void tearDown(VertxTestContext testContext) {
-        vertx.close(testContext.succeedingThenComplete());
+        vertx.getDelegate().close(testContext.succeedingThenComplete());
     }
 
     private void checkGetAssertions(VertxTestContext testContext, ResultSetGroup resultSetGroup) {
@@ -75,37 +75,41 @@ public class VertxConnectionTest {
     private void executeQueryTest(VertxTestContext testContext, VertxConnection connection) {
         String query = "select playerName, sum(homeRuns) AS totalHomeRuns from baseballStats where homeRuns > 0 group by playerID, playerName ORDER BY totalHomeRuns DESC limit 2";
 
-        connection
+        var disposable = connection
                 .execute(query)
-                .onSuccess(resultSetGroup -> checkGetAssertions(testContext, resultSetGroup))
-                .onFailure(testContext::failNow);
+                .subscribe(
+                        resultSetGroup -> checkGetAssertions(testContext, resultSetGroup),
+                        testContext::failNow
+                );
     }
 
     @Test
     public void testGetPlayers(VertxTestContext testContext) {
         String brokerUrl = "localhost:" + pinot.getMappedPort(8000);
-        VertxConnection connection = VertxConnectionFactory.fromHostList(vertx, brokerUrl);
+        VertxConnection connection = VertxConnectionFactory.fromHostList(vertx, new String[]{brokerUrl});
         executeQueryTest(testContext, connection);
     }
 
     @Test
     public void testPreparedStatement(VertxTestContext testContext) {
         String brokerUrl = "localhost:" + pinot.getMappedPort(8000);
-        VertxConnection connection = VertxConnectionFactory.fromHostList(vertx, brokerUrl);
+        VertxConnection connection = VertxConnectionFactory.fromHostList(vertx, new String[]{brokerUrl});
 
         String query = "select playerName, sum(homeRuns) AS totalHomeRuns from baseballStats where homeRuns > ? group by playerID, playerName ORDER BY totalHomeRuns DESC limit 2";
-        connection
+        var disposable = connection
                 .prepareStatement(query)
                 .setInt(0, 0)
                 .execute()
-                .onSuccess(resultSetGroup -> checkGetAssertions(testContext, resultSetGroup))
-                .onFailure(testContext::failNow);
+                .subscribe(
+                        resultSetGroup -> checkGetAssertions(testContext, resultSetGroup),
+                        testContext::failNow
+                );
     }
 
     @Test
     public void testVertxTransportWithBroker(VertxTestContext testContext) {
         String brokerUrl = "localhost:" + pinot.getMappedPort(8000);
-        VertxPinotClientTransport transport = new VertxPinotClientTransport(vertx);
+        VertxPinotClientTransport transport = new VertxPinotClientTransport(vertx.getDelegate());
         VertxConnection connection = VertxConnectionFactory.fromHostList(vertx, List.of(brokerUrl), transport);
         executeQueryTest(testContext, connection);
     }
@@ -116,7 +120,7 @@ public class VertxConnectionTest {
         properties.setProperty("brokerUpdateFrequencyInMillis", "60000");
 
         String controllerUrl = "localhost:" + pinot.getMappedPort(9000);
-        VertxPinotClientTransport transport = new VertxPinotClientTransport(vertx);
+        VertxPinotClientTransport transport = new VertxPinotClientTransport(vertx.getDelegate());
         VertxConnection connection = VertxConnectionFactory.fromController(vertx, properties, controllerUrl, transport);
 
         executeQueryTest(testContext, connection);
@@ -126,7 +130,7 @@ public class VertxConnectionTest {
     @Disabled
     public void testVertxTransportWithZookeeper(VertxTestContext testContext) {
         String zookeeperUrl = "localhost:" + pinot.getMappedPort(2181) + "/QuickStartCluster";
-        VertxPinotClientTransport transport = new VertxPinotClientTransport(vertx);
+        VertxPinotClientTransport transport = new VertxPinotClientTransport(vertx.getDelegate());
         VertxConnection connection = VertxConnectionFactory.fromZookeeper(vertx, zookeeperUrl, transport);
         executeQueryTest(testContext, connection);
     }

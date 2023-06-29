@@ -27,6 +27,8 @@
 
   <modules>
     <module>pinot-client</module>
+    <module>pinot-client-rxjava3</module>
+    <module>pinot-client-mutiny</module>
   </modules>
 
   <properties>
@@ -36,7 +38,6 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <stack.version>4.4.1</stack.version>
-    <net.revelc.code.formatter.configFile>${project.basedir}/contrib/style.xml</net.revelc.code.formatter.configFile>
   </properties>
 
   <name>Reactiverse Pinot Client</name>

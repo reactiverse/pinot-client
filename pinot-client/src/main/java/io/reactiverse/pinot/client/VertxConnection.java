@@ -13,24 +13,31 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package io.reactiverse.pinot;
+package io.reactiverse.pinot.client;
 
 import org.apache.pinot.client.ResultSetGroup;
 
+import io.vertx.codegen.annotations.GenIgnore;
 import io.vertx.codegen.annotations.Nullable;
+import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 
+@VertxGen
 public interface VertxConnection {
     VertxPreparedStatement prepareStatement(String query);
 
+    @GenIgnore(GenIgnore.PERMITTED_TYPE)
     Future<ResultSetGroup> execute(String query);
 
+    @GenIgnore(GenIgnore.PERMITTED_TYPE)
     Future<ResultSetGroup> execute(@Nullable String tableName, String query);
 
+    @GenIgnore(GenIgnore.PERMITTED_TYPE)
     void execute(String query, Handler<AsyncResult<ResultSetGroup>> handler);
 
+    @GenIgnore(GenIgnore.PERMITTED_TYPE)
     void execute(@Nullable String tableName, String query, Handler<AsyncResult<ResultSetGroup>> handler);
 
     void close();

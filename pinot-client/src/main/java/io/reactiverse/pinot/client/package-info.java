@@ -13,23 +13,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package io.reactiverse.pinot;
 
-import java.util.concurrent.ExecutionException;
+@ModuleGen(groupPackage = "io.reactiverse.pinot.client", name = "client")
+package io.reactiverse.pinot.client;
 
-import io.vertx.core.Future;
-import io.vertx.core.Vertx;
-
-class Utils {
-    static <T> Future<T> transformFuture(Vertx vertx, java.util.concurrent.Future<T> originalFuture) {
-        return vertx.executeBlocking(promise -> {
-            try {
-                T result = originalFuture.get();
-                promise.complete(result);
-            }
-            catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
-            }
-        }, false);
-    }
-}
+import io.vertx.codegen.annotations.ModuleGen;
