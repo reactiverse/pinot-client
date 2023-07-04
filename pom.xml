@@ -27,6 +27,7 @@
 
   <modules>
     <module>pinot-client</module>
+    <module>pinot-client-rxjava2</module>
     <module>pinot-client-rxjava3</module>
     <module>pinot-client-mutiny</module>
   </modules>
