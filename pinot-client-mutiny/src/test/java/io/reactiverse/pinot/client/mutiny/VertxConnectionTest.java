@@ -23,7 +23,6 @@ import org.apache.pinot.client.ResultSet;
 import org.apache.pinot.client.ResultSetGroup;
 import org.apache.pinot.client.VertxPinotClientTransport;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testcontainers.containers.GenericContainer;
@@ -47,7 +46,7 @@ public class VertxConnectionTest {
     @Container
     public static GenericContainer<?> pinot = new GenericContainer<>(DockerImageName.parse("apachepinot/pinot:0.12.0"))
             .withCommand("QuickStart -type batch")
-            .withExposedPorts(2181, 8000, 9000)
+            .withExposedPorts(2123, 8000, 9000)
             .waitingFor(Wait.forLogMessage(".*Offline quickstart setup complete.*\\n", 1))
             .withStartupTimeout(Duration.ofSeconds(600))
             .withReuse(true);
@@ -129,9 +128,8 @@ public class VertxConnectionTest {
     }
 
     @Test
-    @Disabled
     public void testVertxTransportWithZookeeper(VertxTestContext testContext) {
-        String zookeeperUrl = "localhost:" + pinot.getMappedPort(2181) + "/QuickStartCluster";
+        String zookeeperUrl = "localhost:" + pinot.getMappedPort(2123) + "/QuickStartCluster";
         VertxPinotClientTransport transport = new VertxPinotClientTransport(vertx.getDelegate());
         VertxConnection connection = VertxConnectionFactory.fromZookeeper(vertx, zookeeperUrl, transport);
         executeQueryTest(testContext, connection);
