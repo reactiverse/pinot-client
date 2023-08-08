@@ -20,6 +20,7 @@ import java.util.Properties;
 
 import org.apache.pinot.client.*;
 
+import io.reactiverse.pinot.client.impl.VertxConnectionImpl;
 import io.vertx.codegen.annotations.GenIgnore;
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.Vertx;

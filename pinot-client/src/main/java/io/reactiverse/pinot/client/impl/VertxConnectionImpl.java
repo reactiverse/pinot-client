@@ -13,11 +13,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package io.reactiverse.pinot.client;
+package io.reactiverse.pinot.client.impl;
 
 import org.apache.pinot.client.PinotClientException;
 import org.apache.pinot.client.ResultSetGroup;
 
+import io.reactiverse.pinot.client.VertxConnection;
+import io.reactiverse.pinot.client.VertxPreparedStatement;
 import io.vertx.codegen.annotations.Nullable;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -28,7 +30,7 @@ public class VertxConnectionImpl implements VertxConnection {
     private final org.apache.pinot.client.Connection pinotConnection;
     private final Vertx vertx;
 
-    VertxConnectionImpl(Vertx vertx, org.apache.pinot.client.Connection pinotConnection) {
+    public VertxConnectionImpl(Vertx vertx, org.apache.pinot.client.Connection pinotConnection) {
         this.vertx = vertx;
         this.pinotConnection = pinotConnection;
     }

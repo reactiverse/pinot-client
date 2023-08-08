@@ -13,11 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package io.reactiverse.pinot.client;
+package io.reactiverse.pinot.client.impl;
 
 import org.apache.pinot.client.PreparedStatement;
 import org.apache.pinot.client.ResultSetGroup;
 
+import io.reactiverse.pinot.client.VertxPreparedStatement;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -28,7 +29,7 @@ public class VertxPreparedStatementImpl implements VertxPreparedStatement {
     private final Vertx vertx;
     private final PreparedStatement preparedStatement;
 
-    VertxPreparedStatementImpl(Vertx vertx, PreparedStatement preparedStatement) {
+    public VertxPreparedStatementImpl(Vertx vertx, PreparedStatement preparedStatement) {
         this.vertx = vertx;
         this.preparedStatement = preparedStatement;
     }
