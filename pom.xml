@@ -198,11 +198,12 @@
   </build>
   <profiles>
     <profile>
-      <id>qa</id>
+      <id>lint</id>
       <activation>
         <property>
           <name>!quick</name>
         </property>
+        <jdk>[11,)</jdk>
       </activation>
       <build>
         <plugins>
