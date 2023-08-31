@@ -14,36 +14,86 @@
 #  limitations under the License.
 #
 
-name: Build
-
+name: CI
 on:
   push:
-    branches: [ main ]
+    branches:
+      - master
+    tags:
+      - 'v*'
   pull_request:
-    branches: [ main ]
-
+    branches:
+      - master
+  schedule:
+    - cron:  '0 4 * * *'
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
+  Test:
+    name: Run tests
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        jdk: [8, 11, 17]
+    runs-on: ${{ matrix.os }}
     steps:
-      - name: 'Check out repository'
+      - name: Checkout
         uses: actions/checkout@v2
-        with:
-          submodules: 'true'
-
-      - name: 'Set up Java'
+      - name: Install JDK
         uses: actions/setup-java@v2
         with:
-          java-version: 17
           distribution: 'temurin'
-
-      - name: 'Cache Maven packages'
-        uses: actions/cache@v2
+          java-version: ${{ matrix.jdk }}
+      - name: Run tests
+        run: mvn -B clean verify -DwithIts
+  Deploy:
+    name: Deploy to OSSRH
+    if: ${{ github.repository_owner == 'reactiverse' && (github.event_name == 'push' || github.event_name == 'schedule') && !startsWith(github.ref, 'refs/tags/') }}
+    needs: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install JDK
+        uses: actions/setup-java@v2
         with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-
-      - name: 'Build and test project'
-        run: mvn -B clean verify
+          distribution: 'temurin'
+          java-version: 8
+          server-id: ossrh
+          server-username: SONATYPE_NEXUS_USERNAME
+          server-password: SONATYPE_NEXUS_PASSWORD
+      - name: Get project version
+        run: echo "PROJECT_VERSION=$(mvn org.apache.maven.plugins:maven-help-plugin:evaluate -Dexpression=project.version -B | grep -v '\[')" >> $GITHUB_ENV
+      - name: Maven deploy
+        if: ${{ endsWith(env.PROJECT_VERSION, '-SNAPSHOT') }}
+        run: mvn source:jar deploy -DskipTests -B
+        env:
+            SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
+            SONATYPE_NEXUS_PASSWORD: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
+  Release:
+    name: Release to OSSRH
+    if: ${{ github.repository_owner == 'reactiverse' && startsWith(github.ref, 'refs/tags/') }}
+    needs: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: 8
+          server-id: ossrh
+          server-username: SONATYPE_NEXUS_USERNAME
+          server-password: SONATYPE_NEXUS_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+      - name: Maven deploy
+        run: mvn -Prelease,doc-html generate-resources asciidoctor:process-asciidoc deploy -DskipTests -Ddoc.outputDirectory=./public -B
+        env:
+            SONATYPE_NEXUS_USERNAME: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
+            SONATYPE_NEXUS_PASSWORD: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
+            MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PRIVATE_KEY_PASSPHRASE }}
+      - name: GitHub Pages Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            publish_dir: ./public
