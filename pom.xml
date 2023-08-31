@@ -17,7 +17,8 @@
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
+         child.project.url.inherit.append.path="false">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>io.reactiverse.pinot</groupId>
@@ -33,6 +34,31 @@
     <module>pinot-client-mutiny</module>
   </modules>
 
+  <scm child.scm.connection.inherit.append.path="false"
+    child.scm.developerConnection.inherit.append.path="false"
+    child.scm.url.inherit.append.path="false">
+    <url>https://github.com/reactiverse/pinot-client</url>
+    <connection>scm:git:git@github.com:reactiverse/pinot-client.git</connection>
+    <developerConnection>scm:git:git@github.com:reactiverse/pinot-client.git</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
+
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/reactiverse/pinot-client/issues/</url>
+  </issueManagement>
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+    <repository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
+
   <properties>
     <java.version>11</java.version>
     <maven.compiler.parameters>true</maven.compiler.parameters>
@@ -45,7 +71,7 @@
   <name>Reactiverse Pinot Client</name>
   <description>This client exposes the Pinot Java Client for Eclipse Vert.x applications.</description>
   <inceptionYear>2023</inceptionYear>
-  <url>https://github.com/lucifer4j/pinot-client</url>
+  <url>https://github.com/reactiverse/pinot-client</url>
 
   <licenses>
     <license>
