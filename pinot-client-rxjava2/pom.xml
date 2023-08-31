@@ -21,7 +21,7 @@
 
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>io.reactiverse.pinot</groupId>
+    <groupId>io.reactiverse</groupId>
     <artifactId>pinot-client-parent</artifactId>
     <version>1.0-SNAPSHOT</version>
   </parent>
@@ -35,7 +35,7 @@
       <version>${stack.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.reactiverse.pinot</groupId>
+      <groupId>io.reactiverse</groupId>
       <artifactId>pinot-client</artifactId>
       <version>1.0-SNAPSHOT</version>
     </dependency>
@@ -49,7 +49,7 @@
         <configuration>
           <artifactItems>
             <artifactItem>
-              <groupId>io.reactiverse.pinot</groupId>
+              <groupId>io.reactiverse</groupId>
               <artifactId>pinot-client</artifactId>
               <version>1.0-SNAPSHOT</version>
               <type>jar</type>
