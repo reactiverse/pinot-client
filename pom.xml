@@ -16,9 +16,10 @@
      limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  
+
   <groupId>io.reactiverse.pinot</groupId>
   <artifactId>pinot-client-parent</artifactId>
   <version>1.0-SNAPSHOT</version>
@@ -33,7 +34,7 @@
   </modules>
 
   <properties>
-    <java.version>11</java.version>
+    <java.version>8</java.version>
     <maven.compiler.parameters>true</maven.compiler.parameters>
     <maven.compiler.release>${java.version}</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -130,7 +131,7 @@
           <artifactId>formatter-maven-plugin</artifactId>
           <version>2.16.0</version>
           <configuration>
-              <configFile>etc/eclipse-formatter-config.xml</configFile>
+            <configFile>etc/eclipse-formatter-config.xml</configFile>
           </configuration>
         </plugin>
         <plugin>
@@ -268,10 +269,10 @@
                       <version>[${java.version},)</version>
                     </requireJavaVersion>
                     <requirePluginVersions>
-                       <banLatest>true</banLatest>
-                       <banRelease>true</banRelease>
-                       <banSnapshots>true</banSnapshots>
-                       <phases>clean,deploy,site</phases>
+                      <banLatest>true</banLatest>
+                      <banRelease>true</banRelease>
+                      <banSnapshots>true</banSnapshots>
+                      <phases>clean,deploy,site</phases>
                     </requirePluginVersions>
                   </rules>
                 </configuration>
@@ -292,5 +293,66 @@
         <skipTests>true</skipTests>
       </properties>
     </profile>
+    <profile>
+      <id>illegal-access</id>
+      <activation>
+        <jdk>[9,)</jdk>
+      </activation>
+      <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-failsafe-plugin</artifactId>
+              <version>${maven-failsafe-plugin.version}</version>
+              <configuration>
+                <argLine>--illegal-access=permit</argLine>
+              </configuration>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>3.3.0</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>3.1.0</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <configuration>
+                  <gpgArguments>
+                    <arg>--pinentry-mode</arg>
+                    <arg>loopback</arg>
+                  </gpgArguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
+
 </project>
