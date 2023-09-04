@@ -13,15 +13,19 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.pinot.client;
+package io.reactiverse.pinot.client;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.pinot.client.BrokerResponse;
+import org.apache.pinot.client.PinotClientException;
+import org.apache.pinot.client.PinotClientTransport;
+import org.apache.pinot.client.Request;
 import org.apache.pinot.spi.utils.CommonConstants;
 import org.apache.pinot.spi.utils.JsonUtils;
 
@@ -69,7 +73,7 @@ public class VertxPinotClientTransport implements PinotClientTransport {
     }
 
     @Override
-    public Future<BrokerResponse> executeQueryAsync(String brokerAddress, String query) {
+    public CompletableFuture<BrokerResponse> executeQueryAsync(String brokerAddress, String query) {
         try {
             JsonObject json = new JsonObject()
                     .put("sql", query)
@@ -110,7 +114,7 @@ public class VertxPinotClientTransport implements PinotClientTransport {
     }
 
     @Override
-    public Future<BrokerResponse> executeQueryAsync(String brokerAddress, Request request) throws PinotClientException {
+    public CompletableFuture<BrokerResponse> executeQueryAsync(String brokerAddress, Request request) throws PinotClientException {
         return executeQueryAsync(brokerAddress, request.getQuery());
     }
 

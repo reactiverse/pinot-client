@@ -105,7 +105,7 @@ public interface VertxConnectionFactory {
     @GenIgnore(GenIgnore.PERMITTED_TYPE)
     static VertxConnection fromController(Vertx vertx, Properties properties, String controllerUrl, PinotClientTransport transport) {
         try {
-            Connection pinotConnection = ConnectionFactoryBridge.fromController(properties, controllerUrl, transport);
+            Connection pinotConnection = ConnectionFactory.fromController(properties, controllerUrl, transport);
             return new VertxConnectionImpl(vertx, pinotConnection);
         } catch (Exception e) {
             throw new PinotClientException(e);
