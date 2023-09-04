@@ -35,8 +35,8 @@
   </modules>
 
   <scm child.scm.connection.inherit.append.path="false"
-    child.scm.developerConnection.inherit.append.path="false"
-    child.scm.url.inherit.append.path="false">
+       child.scm.developerConnection.inherit.append.path="false"
+       child.scm.url.inherit.append.path="false">
     <url>https://github.com/reactiverse/pinot-client</url>
     <connection>scm:git:git@github.com:reactiverse/pinot-client.git</connection>
     <developerConnection>scm:git:git@github.com:reactiverse/pinot-client.git</developerConnection>
@@ -195,6 +195,14 @@
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <version>3.1.2</version>
+          <configuration>
+            <argLine>--illegal-access=permit</argLine>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-install-plugin</artifactId>
           <version>3.1.1</version>
         </plugin>
@@ -318,26 +326,6 @@
       <properties>
         <skipTests>true</skipTests>
       </properties>
-    </profile>
-    <profile>
-      <id>illegal-access</id>
-      <activation>
-        <jdk>[9,)</jdk>
-      </activation>
-      <build>
-        <pluginManagement>
-          <plugins>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-failsafe-plugin</artifactId>
-              <version>${maven-failsafe-plugin.version}</version>
-              <configuration>
-                <argLine>--illegal-access=permit</argLine>
-              </configuration>
-            </plugin>
-          </plugins>
-        </pluginManagement>
-      </build>
     </profile>
     <profile>
       <id>release</id>
