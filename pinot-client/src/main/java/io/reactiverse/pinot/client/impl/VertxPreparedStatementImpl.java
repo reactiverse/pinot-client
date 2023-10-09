@@ -37,7 +37,7 @@ public class VertxPreparedStatementImpl implements VertxPreparedStatement {
     @Override
     public Future<ResultSetGroup> execute() {
         var originalFuture = preparedStatement.executeAsync();
-        return Future.fromCompletionStage(originalFuture);
+        return Future.fromCompletionStage(originalFuture, vertx.getOrCreateContext());
     }
 
     @Override

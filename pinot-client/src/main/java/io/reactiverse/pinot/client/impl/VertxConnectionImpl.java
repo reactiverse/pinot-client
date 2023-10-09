@@ -44,13 +44,13 @@ public class VertxConnectionImpl implements VertxConnection {
     @Override
     public Future<ResultSetGroup> execute(String query) {
         var originalFuture = pinotConnection.executeAsync(query);
-        return Future.fromCompletionStage(originalFuture);
+        return Future.fromCompletionStage(originalFuture, vertx.getOrCreateContext());
     }
 
     @Override
     public Future<ResultSetGroup> execute(@Nullable String tableName, String query) {
         var originalFuture = pinotConnection.executeAsync(tableName, query);
-        return Future.fromCompletionStage(originalFuture);
+        return Future.fromCompletionStage(originalFuture, vertx.getOrCreateContext());
     }
 
     @Override
